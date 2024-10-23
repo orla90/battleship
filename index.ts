@@ -2,8 +2,8 @@ import { httpServer } from "./src/http_server/index";
 import * as dotenv from "dotenv";
 import { resolve } from "path";
 import { cwd } from "process";
-import { json } from "stream/consumers";
 import { WebSocketServer } from 'ws';
+import { wsServerHandler } from './src/ws_server/ws-handler';
 
 dotenv.config({ path: resolve(cwd(), ".env") });
 
@@ -18,19 +18,4 @@ httpServer.listen(HTTP_PORT, () => {
   console.log(`Server listening on port ${ HTTP_PORT }`);
 });
 
-wss.on('connection', (ws) => {
-
-  ws.on('message', (data) => {
-    console.log('received: %s', data);
-  });
-
-  // ws.send(JSON.stringify('something'));
-
-  ws.on('close', () => {
-    console.log('Client disconnected');
-  });
-
-  ws.on('error', (error) => {
-    console.error(`WebSocket error: ${error}`);
-  });
-});
+wss.on('connection', wsServerHandler);
