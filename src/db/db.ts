@@ -1,10 +1,11 @@
 import { ErrorType } from "../common/enums/error-types.enum";
-import { Game } from "../common/models/game";
+import { Game, GameWithShips } from "../common/models/game";
 import { Player, PlayerRegResponseData } from "../common/models/player";
 import { Room, RoomUser } from "../common/models/room";
 
 let players: Player[] = [];
 let rooms: Room[] = [];
+let games: Record<string, GameWithShips[]> = {};
 
 export const getPlayerByNameAndPass = ({ name, password }: Player) => {
   const player = players.find(
@@ -98,6 +99,15 @@ export const createGame = (indexRoom: number | string) => {
       const game = new Game({ idGame: gameId, idPlayer: user.index});
       gameParticipants.push(game);
     })
+    games.gameId = [];
   }
   return gameParticipants;
+}
+
+export const addShips = (data: GameWithShips) => {
+  console.log('data', data)
+  if (games[data.gameId] && games[data.gameId].length < 2) {
+    games[data.gameId].push(data);
+  }
+  if (games[data.gameId] && games[data.gameId].length === 2) return games[data.gameId];
 }

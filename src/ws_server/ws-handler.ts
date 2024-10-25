@@ -1,7 +1,7 @@
 import { MessageTypesEnum } from "../common/enums/message-types.enum";
 import { handleAddUserRequest, handleRegPlayerRequest } from "../controllers/player.controller";
 import WebSocket from "ws";
-import { handleCreateRoomRequest } from "../controllers/room.controller";
+import { handleAddShipsRequest, handleCreateRoomRequest } from "../controllers/room.controller";
 
 export const wsServerHandler = (ws: WebSocket) => {
   ws.on("message", (message: string) => {
@@ -22,6 +22,9 @@ export const wsServerHandler = (ws: WebSocket) => {
           break;
         case MessageTypesEnum.ADD_USER_TO_ROOM:
           responseResult = handleAddUserRequest(JSON.parse(data));
+          break;
+        case MessageTypesEnum.ADD_SHIPS:
+          responseResult = handleAddShipsRequest(JSON.parse(data));
           break;
 
       }
