@@ -23,7 +23,7 @@ export class Player {
   }
 }
 
-export class PlayerRegResponse {
+export class PlayerRegResponseData {
   name: string;
   index: number | string;
   error: boolean;

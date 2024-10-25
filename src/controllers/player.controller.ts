@@ -1,10 +1,10 @@
 import { MessageTypesEnum } from "../common/enums/message-types.enum";
 import { Player } from "../common/models/player";
-import { createPlayer, getPlayerByNameAndPass } from "../db/db";
+import { checkPlayerExists, createPlayer, getPlayerByNameAndPass } from "../db/db";
 
 export const handlePlayerRequests = (data: Player) => {
   try {
-    const dbActionResponse = getPlayerByNameAndPass(data) ?? createPlayer(data);
+    const dbActionResponse = getPlayerByNameAndPass(data) || checkPlayerExists(data) || createPlayer(data);
 
     const regResponse = {
       type: MessageTypesEnum.REG,

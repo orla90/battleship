@@ -1,13 +1,13 @@
 import { MessageTypesEnum } from "../common/enums/message-types.enum";
 import { handlePlayerRequests } from "../controllers/player.controller";
 import WebSocket from "ws";
+import { handleRoomRequests } from "../controllers/room.controller";
 
 export const wsServerHandler = (ws: WebSocket) => {
   ws.on("message", (message: string) => {
     console.log("received message: %s", message);
 
     const { type, data } = JSON.parse(message);
-    const dataObj = JSON.parse(data);
     console.log("received: %s", data);
 
     let response;
@@ -15,8 +15,10 @@ export const wsServerHandler = (ws: WebSocket) => {
     if (type) {
       switch (type) {
         case MessageTypesEnum.REG:
-          response = handlePlayerRequests(dataObj);
+          response = handlePlayerRequests(JSON.parse(data));
           break;
+        case MessageTypesEnum.CREATE_ROOM:
+          response = handleRoomRequests();
       }
 
       ws.send(JSON.stringify(response));
