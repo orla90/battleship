@@ -1,4 +1,5 @@
 import { ErrorType } from "../common/enums/error-types.enum";
+import { Game } from "../common/models/game";
 import { Player, PlayerRegResponseData } from "../common/models/player";
 import { Room, RoomUser } from "../common/models/room";
 
@@ -86,4 +87,17 @@ export const createAndUpdateRoom = () => {
 
 export const getRoomById = (id: string | number) => {
   return rooms.find(room => room.roomId === id);
+}
+
+export const createGame = (indexRoom: number | string) => {
+  const room = rooms.find(room => room.roomId === indexRoom);
+  const gameParticipants: Game[] = [];
+  if (room && room.roomUsers?.length === 2) {
+    const gameId = crypto.randomUUID();
+    room.roomUsers.forEach((user) => {
+      const game = new Game({ idGame: gameId, idPlayer: user.index});
+      gameParticipants.push(game);
+    })
+  }
+  return gameParticipants;
 }

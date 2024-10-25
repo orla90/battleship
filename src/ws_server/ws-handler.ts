@@ -1,7 +1,7 @@
 import { MessageTypesEnum } from "../common/enums/message-types.enum";
-import { handlePlayerRequests } from "../controllers/player.controller";
+import { handleAddUserRequest, handleRegPlayerRequest } from "../controllers/player.controller";
 import WebSocket from "ws";
-import { handleRoomRequests } from "../controllers/room.controller";
+import { handleCreateRoomRequest } from "../controllers/room.controller";
 
 export const wsServerHandler = (ws: WebSocket) => {
   ws.on("message", (message: string) => {
@@ -10,18 +10,27 @@ export const wsServerHandler = (ws: WebSocket) => {
     const { type, data } = JSON.parse(message);
     console.log("received: %s", data);
 
-    let response;
+    let responseResult;
 
     if (type) {
       switch (type) {
         case MessageTypesEnum.REG:
-          response = handlePlayerRequests(JSON.parse(data));
+          responseResult = handleRegPlayerRequest(JSON.parse(data));
           break;
         case MessageTypesEnum.CREATE_ROOM:
-          response = handleRoomRequests();
+          responseResult = handleCreateRoomRequest();
+          break;
+        case MessageTypesEnum.ADD_USER_TO_ROOM:
+          responseResult = handleAddUserRequest(JSON.parse(data));
+          break;
+
       }
 
-      ws.send(JSON.stringify(response));
+      if (Array.isArray(responseResult)) {
+        responseResult.forEach(response => ws.send(JSON.stringify(response)))
+      } else {
+        ws.send(JSON.stringify(responseResult));
+      }
     }
   });
 
