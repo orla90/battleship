@@ -1,7 +1,7 @@
 import { MessageTypesEnum } from "../common/enums/message-types.enum";
 import { Attack, GameWithShips } from "../common/models/game";
 import { CustomResponse, CustomWSResponse } from "../common/models/response";
-import { addShips, createAndUpdateRoom, getWSByPlayerId, updateGame } from "../db/db";
+import { addShips, createAndUpdateRoom, getWSByPlayerId, updateGame, updateRoom, updateWinners } from "../db/db";
 
 export const handleCreateRoomRequest = () => {
   try {
@@ -12,6 +12,37 @@ export const handleCreateRoomRequest = () => {
     });
 
     return updateRoomResponse;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const handleUpdateRoomRequest = () => {
+  try {
+    const rooms = updateRoom();
+    if (rooms) {
+      const updateRoomResponse = new CustomResponse({
+        type: MessageTypesEnum.UPDATE_ROOM,
+        data: JSON.stringify(updateRoom()),
+        id: 0,
+      });
+  
+      return updateRoomResponse;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const handleUpdateWinnersRequest = () => {
+  try {
+    const updateWinnersResponse = new CustomResponse({
+      type: MessageTypesEnum.UPDATE_WINNERS,
+      data: JSON.stringify(updateWinners()),
+      id: 0,
+    });
+
+    return updateWinnersResponse;
   } catch (error) {
     console.log(error);
   }

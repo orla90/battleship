@@ -1,11 +1,12 @@
 import { ErrorType } from "../common/enums/error-types.enum";
 import { Attack, Game, GameWithShips, Ship, ShipCoordinates } from "../common/models/game";
-import { CurPlayer, Player, PlayerRegResponseData } from "../common/models/player";
+import { CurPlayer, Player, PlayerRegResponseData, Winner } from "../common/models/player";
 import { Room, RoomUser } from "../common/models/room";
 
 let players: Player[] = [];
 let rooms: Room[] = [];
 let games: Record<string, GameWithShips[]> = {};
+let winners: Winner[] = [];
 
 export const getPlayerByNameAndPass = ({ name, password }: Player) => {
   const player = players.find(
@@ -57,7 +58,7 @@ export const createPlayer = ({ name, password }: Player, ws: WebSocket) => {
   }
 };
 
-export const updateRoom = (roomId: string | number) => {
+export const updateRoomById = (roomId: string | number) => {
   try {
     const room = getRoomById(roomId);
     if (room && (!room.roomUsers?.length || room.roomUsers?.length === 1)) {
@@ -71,6 +72,15 @@ export const updateRoom = (roomId: string | number) => {
       )
     }
     return room;
+  } catch (error) {
+    console.log(ErrorType.ADDING_USER_ERROR);
+  }
+}
+
+export const updateRoom = () => {
+  try {
+    const availableRooms = rooms.filter(room => room.roomUsers.length === 1);
+    return availableRooms;
   } catch (error) {
     console.log(ErrorType.ADDING_USER_ERROR);
   }
@@ -90,7 +100,7 @@ export const createRoom = () => {
 
 export const createAndUpdateRoom = () => {
   const roomId = rooms.length && rooms[0].roomId ? rooms[0].roomId : createRoom();
-  return updateRoom(roomId!);
+  return updateRoomById(roomId!);
 }
 
 export const getRoomById = (id: string | number) => {
@@ -143,8 +153,24 @@ export const updateGame = (data: Attack) => {
     const enemy = games[data.gameId].find(player => player.indexPlayer !== data.indexPlayer);
     const coordinates = shipCoordinates(enemy!.ships);
     const hit = coordinates.find((coord: ShipCoordinates) => coord.x === data.x && coord.y === data.y);
-    return hit ? console.log('Попадание!') : console.log('Мимо!');
+    let status = "";
+    if (hit) {
+      console.log('Попадание!');
+      status = "shot";
+    } else {
+      console.log('Мимо!');
+      status = "miss";
     }
+    
+    return {
+      position: {
+        x: data.x,
+        y: data.y,
+      },
+      currentPlayer: data.indexPlayer,
+      status: status,
+    };
+  }
 }
 
 export const generateShipCoordinates = (ship: Ship) => {
@@ -164,3 +190,6 @@ export const generateShipCoordinates = (ship: Ship) => {
 
 export const shipCoordinates = (ships: Ship[]) => ships.flatMap(generateShipCoordinates);
 
+export const updateWinners = () => {
+  return winners;
+}
