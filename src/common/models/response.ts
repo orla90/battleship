@@ -19,3 +19,28 @@ export class CustomResponse {
     this.id = id;
   }
 }
+
+
+export class CustomWSResponse {
+  type: MessageTypesEnum;
+  data: string;
+  id: number;
+  ws: WebSocket;
+
+  constructor({
+    type,
+    data,
+    id,
+    ws,
+  }: {
+    type: MessageTypesEnum;
+    data: string;
+    id: number;
+    ws: WebSocket;
+  }) {
+    this.type = type;
+    this.data = data;
+    this.id = id;
+    this.ws = ws;
+  }
+}

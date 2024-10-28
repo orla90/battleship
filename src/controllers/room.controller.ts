@@ -1,7 +1,7 @@
 import { MessageTypesEnum } from "../common/enums/message-types.enum";
-import { GameWithShips } from "../common/models/game";
-import { CustomResponse } from "../common/models/response";
-import { addShips, createAndUpdateRoom } from "../db/db";
+import { Attack, GameWithShips } from "../common/models/game";
+import { CustomResponse, CustomWSResponse } from "../common/models/response";
+import { addShips, createAndUpdateRoom, getWSByPlayerId, updateGame } from "../db/db";
 
 export const handleCreateRoomRequest = () => {
   try {
@@ -19,18 +19,43 @@ export const handleCreateRoomRequest = () => {
 
 export const handleAddShipsRequest = (data: GameWithShips) => {
   try {
-    const playersData = [addShips(data)];
+    const playersData = addShips(data);
     if (playersData) {
-      const addShipsResponse = new CustomResponse({
-        type: MessageTypesEnum.START_GAME,
-        data: JSON.stringify([addShips(data)]),
+      const addShipsResponse = (playersData[0] as GameWithShips[]).reduce((acc: CustomWSResponse[], response: GameWithShips) => {
+        acc.push(new CustomWSResponse(        {
+          type: MessageTypesEnum.START_GAME,
+          data: JSON.stringify(response),
+          id: 0,
+          ws: getWSByPlayerId(response.indexPlayer)
+        }))
+        return acc;
+      }, [])
+
+      const createCurPlayerResponse = new CustomResponse({
+        type: MessageTypesEnum.TURN,
+        data: JSON.stringify(playersData[1]),
         id: 0,
-      });
-  
-      return addShipsResponse;
+      })  
+      return [addShipsResponse, createCurPlayerResponse];
     }
   } catch (error) {
     console.log(error);
   }
 };
 
+export const handleAttackRequest = (data: Attack) => {
+  try {
+    const attackResponse = updateGame(data);
+    if (attackResponse) {
+      const attackFeedbackResponse = new CustomResponse({
+        type: MessageTypesEnum.ATTACK,
+        data: JSON.stringify(attackResponse),
+        id: 0,
+      });
+  
+      return attackFeedbackResponse;
+    }
+  } catch (error) {
+    console.log(error);
+  }
+};
