@@ -11,6 +11,22 @@ Thumbs.db
 .idea/
 *.PEM
 .vscode/
+.DS_Store
+Thumbs.db
 
 # Logs
 npm-debug.log
+
+# npm package lock
+package-lock.json
+
+# Environment variables
+.env
+
+# Build output
+dist/
+build/
+
+# Temporary files
+*.tmp
+*.temp
